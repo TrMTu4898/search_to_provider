@@ -32,25 +32,14 @@ def generate_gpt_response(in_provider, input_message):
 
     result_str = []
     for mess in res:
-        if isinstance(mess, str):  # Check if it's a string response
-            result_str.append(mess)
-        elif isinstance(mess, dict) and 'mimetype' in mess and 'content' in mess:
-            if mess['mimetype'] == 'text/plain':
-                result_str.append(mess['content'])
-        # Handle other mimetypes if needed
+        result_str.append(mess)
 
     # convert list to string
     result_str = ''.join(result_str)
-
-    # remove unwanted patterns
-    result_str = re.sub(r'\[[0-9]+]: https://[^\s]+ ""\n', '', result_str)
-
     # remove code block
-    result_str = re.sub(r"```[^\S\r\n]*[a-z]*\n.*?\n```", '', result_str, 0, re.DOTALL)
-
-    result_str = result_str.split('\n\n', 1)[0]
-    result_str = result_str.split('\n- ')
-    return result_str
+    txt = result_str
+    txt = re.sub(r"```[^\S\r\n]*[a-z]*\n.*?\n```", '', txt, 0, re.DOTALL)
+    return txt
 
 
 

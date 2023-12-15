@@ -22,7 +22,7 @@ class InputMessage(BaseModel):
 
 
 class OutputResult(BaseModel):
-    response: list
+    response: str
 
 
 app.add_middleware(
