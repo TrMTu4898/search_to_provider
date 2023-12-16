@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from starlette.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 from api.end_points.search_to_provider import generate_gpt_response
+from api.end_points.google_generative import GoogleGenerative
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -16,12 +17,20 @@ def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-class InputMessage(BaseModel):
+class InputMessageKW(BaseModel):
     input_mes: str
     in_provider: str
 
 
-class OutputResult(BaseModel):
+class OutputResultKW(BaseModel):
+    response: str
+
+
+class InputMessageGO(BaseModel):
+    input_mes: str
+
+
+class OutputResultGo(BaseModel):
     response: str
 
 
@@ -33,10 +42,20 @@ app.add_middleware(
 )
 
 
-@app.post("/generate-keywords", response_model=OutputResult)
-def generate_keywords(input_api: InputMessage):
+@app.post("/generate-keywords", response_model=OutputResultKW)
+def generate_keywords(input_api: InputMessageKW):
     try:
         result = generate_gpt_response(input_api.in_provider, input_api.input_mes)
+        return {"response": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/google_generative", response_model=OutputResultGo)
+def generative_google(input_mes: InputMessageGO):
+    google_ge = GoogleGenerative()
+    try:
+        result = google_ge.generative(input_mes=input_mes.input_mes)
         return {"response": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
